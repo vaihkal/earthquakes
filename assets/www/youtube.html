@@ -1,0 +1,151 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>Rutas</title>
+
+<script src="cordova.js"></script><meta http-equiv="Access-Control-Allow-Origin" content="*" />
+<meta http-equiv="Access-Control-Allow-Origin" content="*" />
+<script src="http://code.jquery.com/jquery-1.6.4.min.js"></script>
+<link rel="stylesheet" href="http://code.jquery.com/mobile/1.0.1/jquery.mobile-1.0.1.min.css" />
+<script src="http://code.jquery.com/mobile/1.0.1/jquery.mobile-1.0.1.min.js"></script>
+
+<script>
+
+//funcion para obtener los valores de las variables de una URL
+function getUrlVars() {
+    var vars = {};
+    var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
+        vars[key] = value;
+    });
+    return vars;
+	
+	
+}
+
+$(document).ready(function(e) {
+	//inicializamos el servicio de la api de SoundCloud
+	SC.initialize({
+	  client_id: 'bf006b2b650b692990d45a4077d49078',
+	  //redirect_uri: 'http://pruebas.indziaki.com/app/youtube.html'
+	});
+	var p = document.getElementById('soundcloud');
+	p.innerHTML = "<img  src='http://embed.ly/static/providers/logos/soundcloud.png?v=a6e71' />";
+	
+	//obtenemos el valor de la variable en la URL
+	var palabra = decodeURIComponent((getUrlVars()['buscar']+'').replace(/\+/, '%20'));
+	var str;
+	$('#meImg').append('<h3>Resultados para ' + palabra + '</h3>');
+	
+	//Obtenemos el arreglo de las coincidencias en la API de Deezer, en este caso es solo por url, y lo obtenemos con un ajax en formato JSON
+	$.ajax({
+		url:'http://api.deezer.com/search?q=' + palabra + '&output=jsonp',
+		type:"GET",
+		dataType:"jsonp",
+		contentType:"application/json",
+		success: function(data){
+			var q = document.getElementById('deezer');
+			q.innerHTML = "<img src='http://www.mycd.com/web/themes/mycd/images/serveis/digitaldistribution/i_deezer.png' />";
+			var str;
+			
+			//Mediante ciclos buscamos los valores y los imprimimos
+			$.each(data, function(k1, v1){
+				if(k1=="data"){
+				$.each(v1, function(k2, v2){
+					str = "";
+					$.each(v2, function(k3, v3){
+						if(k3 == "id"){
+							str = '<li id="resultados2"><div id="a"><a data-ajax="false" class="ui-link-inherit" href="deezer.html?id=' + v3 + '">';
+						}
+						if(k3 == "title"){
+							str = str + '<p>' + v3 + '</p></a></div>';
+						}						
+						if(k3 == "album"){
+							jQuery.each(v3, function(k4, v4){
+								if(k4 == "cover") str = str + '<div id="b"><img src="'+ v4 +'" /></div></li><hr>';
+							});
+						}
+					});
+					q.innerHTML = q.innerHTML + str;
+				});
+				}
+			});
+		}
+	});
+	
+	
+});
+
+
+</script>
+<style>
+img{
+	max-height:100px;
+}
+#resultados, #resultados2{
+	text-align:justify !important;
+	display:inline-table;
+	list-style:none;
+	width:100%;
+	margin:20px 0px;
+}
+#resultados p{
+	width:50%;
+	float:right;
+	margin:0px;
+}
+#resultados a{
+	widows:50%;
+	float:left;
+	margin:0px;
+}
+#resultados2 #b{
+	width:50%;
+	float:right;
+	margin:0px;
+	text-align:right;
+}
+#resultados2 #a{
+	widows:50%;
+	float:left;
+	margin:0px;
+}
+html, body{
+	text-align:center;
+	margin:0px;
+	padding:0px;
+}
+#deezer{
+	background-image: -webkit-gradient(
+		linear,
+		right bottom,
+		right top,
+		color-stop(0, #93CCC4),
+		color-stop(0.6, #DFEDEC)
+	);
+	background-image: -o-linear-gradient(top, #93CCC4 0%, #DFEDEC 60%);
+	background-image: -moz-linear-gradient(top, #93CCC4 0%, #DFEDEC 60%);
+	background-image: -webkit-linear-gradient(top, #93CCC4 0%, #DFEDEC 60%);
+	background-image: -ms-linear-gradient(top, #93CCC4 0%, #DFEDEC 60%);
+	background-image: linear-gradient(to top, #93CCC4 0%, #DFEDEC 60%);
+	float:right;
+	border-left:#CCC solid 2px;
+}
+a, p{
+	padding:20px;
+}
+</style>
+</head>
+<body>
+<h1>SoundCloud o Deezer</h1>
+<a data-rel="back" data-ajax="false" data-direction="reverse"><p>Regresar</p></a>
+<div>
+    <div id="meName" class="Name"></div>
+    <div id="meImg"></div>
+    <div id="signin">
+    	<div id="deezer"></div>
+    </div>
+</body>
+</html>
+<script src="http://connect.soundcloud.com/sdk.js"></script>
+<script src="http://cdn-files.deezer.com/js/min/dz.js"></script>
